@@ -14,9 +14,9 @@ Lines in question are (Line 43-45) for Reddit API info and (Line 94-97) for Mail
 6. (Optional) the script will not search for PSU and Cooler deals as they are cheap and most people don't look for sales on them
 you can turn this feature on by removing the following lines:
 
-Line 58-61
+    Line 58-61
 
-Line 77-80
+    Line 77-80
 
 7. You can now run the script and it will email you all sales that match your criteria by typing:
 ```
