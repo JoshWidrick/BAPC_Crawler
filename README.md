@@ -52,6 +52,28 @@ here is how it works:
 }
 ```
 
+## How to setup automated daily emails
+
+You can use the windows task scheduler to setup an automated task that can wake your computer up and run the script automatically thus sending you an email of all deals daily. 
+
+1. Make a .bat file in the /src directory
+2. edit the .bat file and write the following:
+```
+"YOUR_PYTHON3_EXE_LOCATION_PATH" "THE_BAPC_SCRIPT_LOCATION_PATH"
+```
+
+For example:
+```
+"C:/Users/bridgie/AppData/Local/Programs/Python/Python37-32/python.exe" "c:/Users/bridgie/Desktop/Experiments/BAPC/BAPC.py"
+```
+
+3. save the .bat file
+4. open windows task scheduler
+5. click on create basic task
+6. name your task and follow the instructions of the task setup, configure it however you want (daily, weekly,monthly)
+7. when asked about action, click on start program, enter the path of the .bat file you just made, leave arguments and start in fields empty
+8. finish and enjoy the savings
+
 ## Additional info
 The script crawls the r/buildapcsales, it sorts the subreddit by Hot and crawls 100 submissions, it also sorts the subreddit by New and crawls 200 submissions, you may increase the limit by editing line 52 and line 71
 
