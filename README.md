@@ -25,6 +25,7 @@ in your command line terminal
 
 ### Or
 
+#### Docker
 We also provided you with a Dockerfile so that you may dockerize the app and simply run it in Docker as a container. it will allow you to avoid all the extra work above.
 
 ## How to setup up criteria to search
