@@ -1,10 +1,10 @@
 {
-    "CPU":"AMD Ryzen 7 3700X $298.99",
-    "Cooler":"Noctua NH-L9i 33.84 CFM CPU Cooler $0.00",
-    "MOBO":"MSI B450 TOMAHAWK MAX $114.99",
-    "RAM":"16GB DDR4 $67.99",
-    "SSD":"500 GB $89.99",
-    "GPU":"GeForce RTX 2060 $299.99",
-    "Case":"ATX Mid Tower Case $99.98",
-    "PSU":"ATX Power Supply $54.45"
+    "CPU":["AMD Ryzen 7 3700X $298.99", "AMD Ryzen 5 3600X $199.99","AMD Ryzen 7 3800X $339.99"],
+    "Cooler":["Noctua NH-L9i 33.84 CFM CPU Cooler $0.00"],
+    "MOBO":["MSI B450 TOMAHAWK MAX $114.99","Asus B450-F $122.99", "MSI B450 TOMAHAWK $111.99", "Asus X570-PLUS $189.99", "MSI B450 CARBON $149.99", "MSI MPG X570 EDGE $191.00"],
+    "RAM":["16GB DDR4 $69.99","32GB DDR4 $169.99", "16 GB DDR4 $69.99", "32 GB DDR4 $169.99"],
+    "SSD":["500 GB $89.99", "500GB $89.99", "1TB $149.99", "1 TB $149.99"],
+    "GPU":["RTX 2060 $299.99", "RTX 2070 SUPER $489.99", "RTX 2060 SUPER $399.99", "GTX 1660 $201.99", "GTX 1660 SUPER $233.98", "GTX 1660 Ti $259.99"],
+    "Case":["ATX Mid Tower $99.99"],
+    "PSU":["ATX Power Supply $59.99"]
 }
