@@ -6,8 +6,7 @@ Python 3.X is required to run
 
 1. Go to: https://www.reddit.com/prefs/apps/ and register a new application to the reddit API. remember the clientID, clientSecret
 2. Go to: https://www.mailgun.com/ and register for their free API 
-3. Go to src/BAPC.py and fill out varibles with the information you got from the 2 websites you just registered on. 
-Lines in question are (Line 43-45) for Reddit API info and (Line 94-97) for MailGun API info
+3. Go to src/BAPC.py, edit the file and fill out varibles with the information you got from the 2 websites you just registered on. This can be done at the top of BAPC.py inside __init__
 4. pip install praw
 5. Set up search criteria by editing src/parts.json (see below on how to set this up)
 
@@ -23,6 +22,10 @@ you can turn this feature on by removing the following lines:
 python BAPC.py
 ```
 in your command line terminal
+
+### Or
+
+We also provided you with a Dockerfile so that you may dockerize the app and simply run it in Docker as a container. it will allow you to avoid all the extra work above.
 
 ## How to setup up criteria to search
 Search Criteria is set in src/parts.json
