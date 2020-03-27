@@ -27,7 +27,7 @@ class BAPC:
         self.to_email = self.config.get_option('api', 'email_address')
         self.subject = self.config.get_option('api', 'emails_subject')
 
-        self.blacklisted_flairs = self.config.get_option('extras', 'blacklisted_flairs')
+        self.blacklisted_flairs = self.config.get_option('extras', 'blacklisted_flairs').split(',')
 
         self.subreddit = self.reddit.subreddit('buildapcsales')
 
