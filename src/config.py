@@ -11,6 +11,8 @@ class Config:
     reddit_options = ['user_agent', 'client_id', 'client_secret', 'username', 'password']
     # all necessary mail server api user inputs
     api_options = ['api_url', 'api_key', 'mailgun_domain', 'email_address', 'emails_subject']
+    # extra options
+    extras_options = ['blacklisted_flairs']
 
     def __init__(self):
         self.config = configparser.ConfigParser(allow_no_value=True)
@@ -28,6 +30,11 @@ class Config:
         if 'api' not in self.config:
             self.config.add_section('api')
         self.run_input_options('api', self.api_options)
+
+    def config_check_extras(self):
+        if 'extras' not in self.config:
+            self.config.add_section('extras')
+        self.run_input_options('extras', self.extras_options)
 
     def run_input_options(self, name, options):
         for o in options:

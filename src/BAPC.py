@@ -7,12 +7,12 @@ from config import Config
 
 
 class BAPC:
-    reddit = None
     parts = {}
     submission_list = {}
 
     def __init__(self):
 
+        # load in config, and all associated info
         self.config = Config()
 
         self.reddit = praw.Reddit(client_id=self.config.get_option('reddit', 'client_id'),
@@ -26,6 +26,8 @@ class BAPC:
         self.from_text = f"Mailgun Sandbox <postmaster@{self.config.get_option('api', 'mailgun_domain')}.mailgun.org>"
         self.to_email = self.config.get_option('api', 'email_address')
         self.subject = self.config.get_option('api', 'emails_subject')
+
+        self.blacklisted_flairs = self.config.get_option('extras', 'blacklisted_flairs')
 
         self.subreddit = self.reddit.subreddit('buildapcsales')
 
@@ -70,14 +72,10 @@ class BAPC:
 
     async def crawl_new(self):
         for submission in self.subreddit.new(limit=200):
+            # TODO add recommended 'Out Of Stock' and 'Expired' flairs to README.md
+
             flair = submission.link_flair_text
-            if flair == "Out Of Stock":
-                continue
-            if "Expired" in flair:
-                continue
-            if flair == "PSU":
-                continue
-            if flair == "Cooler":
+            if flair in self.blacklisted_flairs:
                 continue
             for (part_type, value) in self.parts.items():
                 for part in value:
@@ -92,13 +90,7 @@ class BAPC:
         task = asyncio.create_task(self.crawl_new())
         for submission in self.subreddit.hot(limit=100):
             flair = submission.link_flair_text
-            if flair == "Out Of Stock":
-                continue
-            if "Expired" in flair:
-                continue
-            if flair == "PSU":
-                continue
-            if flair == "Cooler":
+            if flair in self.blacklisted_flairs:
                 continue
             for (partType, value) in self.parts.items():
                 for part in value:
