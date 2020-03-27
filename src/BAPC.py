@@ -3,7 +3,7 @@ import praw
 import re
 import requests
 import asyncio
-from .config import Config
+from config import Config
 
 
 class BAPC:
