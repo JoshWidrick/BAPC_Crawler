@@ -2,108 +2,132 @@ import json
 import praw
 import re
 import requests
+import asyncio
 
-# Checks if the title contains the part you're looking for
-def isNameInString(value, title):
-    splitVal = value.split(' ')
-    price = splitVal[-1]
-    price = float(price[1:])
-    splitVal = splitVal[:-1]
-    splitValCount = len(splitVal)
-    totalVal = 0
-    for subVal in splitVal:
-        if subVal in title:
-            totalVal = totalVal + 1
-            
-    if totalVal < splitValCount:
-        return False
-    if not isPriceBetter(price, title):
-        return False
-    return True
+class BAPC:
 
-# Checks if the sale price is lower than the current price
-def isPriceBetter(CurrentPrice, title):
-    r = re.compile(r'\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})')
-    newPrice = r.findall(title)
+	def __init__(self):
+		self.reddit = reddit = praw.Reddit(client_id='YOUR_REDDIT_CLIENT_ID_GOES_HERE',
+							client_secret="YOUR_REDDIT_CLIENT_SECRET_GOES_HERE", password='YOUR_REDDIT_PASSWORD_GOES_HERE',
+							user_agent='vectorbot', username='YOUR_REDDIT_USERNAME_GOES_HERE')
+							
+		self.api_url = "YOUR_MAILGUN_DOMAIN_GOES_HERE"
+		self.api_key = "YOUR_API_KEY_GOES_HERE"
+		self.from_text = "Mailgun Sandbox <postmaster@YOUR_DOMAIN_NAME_GOES_HERE.mailgun.org>"
+		self.to_email = "YOU_EMAIL_ADDRESS_GOES_HERE"
+		self.subject = "BAPC Digest"
+		###########
+		self.subreddit = reddit.subreddit('buildapcsales')
+		self.parts = {}
+		self.submissionList = {}
+		###########
 
-    if len(newPrice) == 0:
-        return False
-    newPrice = float(newPrice[0])
-    if newPrice >= CurrentPrice:
-        return False
-    return True
+	async def is_name_in_string(self, value, title):
+		if "in-store" in title:
+			return False
+		splitVal = value.split(' ')
+		price = splitVal[-1]
+		price = float(price[1:])
+		splitVal = splitVal[:-1]
+		splitValCount = len(splitVal)
+		totalVal = 0
+		for subVal in splitVal:
+			if subVal in title:
+				totalVal = totalVal + 1
 
-path = './parts.json'
-
-with open(path) as json_file:
-    json_data = json.load(json_file)
-
-# Register your own app at: https://www.reddit.com/prefs/apps/
-# copy the client_id, secret, password, username and useragent from reddit
-reddit = praw.Reddit(client_id='YOUR_REDDIT_CLIENT_ID_GOES_HERE',
-                     client_secret="YOUR_REDDIT_CLIENT_SECRET_GOES_HERE", password='YOUR_REDDIT_PASSWORD_GOES_HERE',
-                     user_agent='BAPC VectorBot', username='YOUR_REDDIT_USERNAME_GOES_HERE')
-
-subreddit = reddit.subreddit('buildapcsales')
-
-submissionList = {}
-
-# Crawls subreddit sorted by new
-for submission in subreddit.new(limit=200):
-    flair = submission.link_flair_text
-    if(flair == "Out Of Stock"):
-        continue
-    if("Expired" in flair):
-        continue
-    if(flair == "PSU"):                     # REMOVE THIS LINE IF YOU WANT TO FIND PSU
-        continue
-    if(flair == "Cooler"):                  # REMOVE THIS LINE IF YOU WANT TO FIND A COOLER
-        continue
-    for(part, value) in json_data.items():
-        if(flair != part):
-            continue
-        else:
-            title = submission.title
-            if(isNameInString(value, title)):
-                submissionList[title] = submission.url
-
-# Crawls subreddit sorted by hot
-for submission in subreddit.hot(limit=100):
-    flair = submission.link_flair_text
-    if(flair == "Out Of Stock"):
-        continue
-    if("Expired" in flair):
-        continue
-    if(flair == "PSU"):                 # REMOVE THIS LINE IF YOU WANT TO FIND PSU
-        continue
-    if(flair == "Cooler"):              # REMOVE THIS LINE IF YOU WANT TO FIND A COOLER
-        continue
-    for(part, value) in json_data.items():
-        if(flair != part):
-            continue
-        else:
-            title = submission.title
-            if(isNameInString(value, title)):
-                submissionList[title] = submission.url
+		if totalVal < splitValCount:
+			return False
+		if not await self.is_price_better(price, title):
+			return False
+		return True
 
 
-#Register at: https://www.mailgun.com/
-#Fill: API URL, API Key, MailGun Address and To fields below
-def send_simple_message(data):
-	return requests.post(
-		"YOUR_API_URL_GOES_HERE",
-		auth=("api", "YOUR_API_KEY_GOES_HERE"),
-		data={"from": "Mailgun Sandbox <YOUR_MAILGUN_DOMAIN_ADDRESS_GOES_HERE>",
-			"to": ["YOUR_EMAIL_ADDRESS_GOES_HERE"],
-			"subject": "BAPC Digest",
-			"text": data})
+	@staticmethod
+	async def is_price_better(current_price, title):
+		r = re.compile(r'\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})')
+		new_price = r.findall(title)
+
+		if len(new_price) == 0:
+			return False
+		new_price = float(new_price[0])
+		if new_price >= current_price:
+			return False
+		return True
+
+	async def send_simple_message(self, data):
+		return requests.post(
+			self.api_url,
+			auth=("api", self.api_key),
+			data={"from": self.from_text,
+				"to": [self.to_email],
+				"subject": self.subject,
+				"text": data})
+
+	async def print_content(self):
+		data = "The following items were found to be on sale on r/buildapcsales:\n"
+		data = data + "----------------------------------------------------\n"
+		for(title, link) in self.submissionList.items():
+			data = data + "Item: %s \n" % title + "Link: %s \n" % link
+			data = data + "----------------------------------------------------\n"
+		return data
+
+	async def crawl_new(self):
+		for submission in self.subreddit.new(limit=200):
+			flair = submission.link_flair_text
+			if flair == "Out Of Stock":
+				continue
+			if "Expired" in flair:
+				continue
+			if flair == "PSU":
+				continue
+			if flair == "Cooler":
+				continue
+			for(partType, value) in self.parts.items():
+				for part in value:
+					if flair != partType:
+						continue
+					else:
+						title = submission.title
+						if await self.is_name_in_string(part, title):
+							self.submissionList[title] = submission.url
+
+	async def crawl(self):
+		task = asyncio.create_task(self.crawl_new())
+		for submission in self.subreddit.hot(limit=100):
+			flair = submission.link_flair_text
+			if flair == "Out Of Stock":
+				continue
+			if "Expired" in flair:
+				continue
+			if flair == "PSU":
+				continue
+			if flair == "Cooler":
+				continue
+			for(partType, value) in self.parts.items():
+				for part in value:
+					if flair != partType:
+						continue
+					else:
+						title = submission.title
+						if await self.is_name_in_string(part, title):
+							self.submissionList[title] = submission.url
+		await task
+		data = await self.print_content()
+		result = await self.send_simple_message(data)
+		print(result)
+
+	async def begin(self):
+		path = './parts.json'
+		delay = 14400
+		with open(path) as json_file:
+			self.parts = json.load(json_file)
+		print("Started Crawling...")
+		await self.crawl()
+		print("Done! going to sleep for {} seconds".format(delay))
+		await asyncio.sleep(delay)
+		await self.begin()
+
+bapc = BAPC()
+asyncio.run(bapc.begin())
 
 
-data = "The following items were found to be on sale on r/buildapcsales:\n"
-data = data + "----------------------------------------------------\n"
-for(title, link) in submissionList.items():
-    data = data + "Item: %s \n" % title + "Link: %s \n" % link
-    data = data + "----------------------------------------------------\n"
-
-# function call to send you an email if sales are found
-send_simple_message(data)
