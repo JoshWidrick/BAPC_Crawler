@@ -7,10 +7,9 @@ from config import Config
 
 
 class BAPC:
-
     reddit = None
     parts = {}
-    submissionList = {}
+    submission_list = {}
 
     def __init__(self):
 
@@ -33,33 +32,24 @@ class BAPC:
     async def is_name_in_string(self, value, title):
         if "in-store" in title:
             return False
-        splitVal = value.split(' ')
-        price = splitVal[-1]
+        split_val = value.split(' ')
+        price = split_val[-1]
         price = float(price[1:])
-        splitVal = splitVal[:-1]
-        splitValCount = len(splitVal)
-        totalVal = 0
-        for subVal in splitVal:
-            if subVal in title:
-                totalVal = totalVal + 1
+        split_val = split_val[:-1]
+        split_val_count = len(split_val)
+        total_val = 0
 
-        if totalVal < splitValCount:
-            return False
-        if not await self.is_price_better(price, title):
-            return False
-        return True
+        for sub_val in split_val:
+            if sub_val in title:
+                total_val = total_val + 1
+
+        return False if total_val < split_val_count or not await self.is_price_better(price, title) else True
 
     @staticmethod
     async def is_price_better(current_price, title):
         r = re.compile(r'\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})')
         new_price = r.findall(title)
-
-        if len(new_price) == 0:
-            return False
-        new_price = float(new_price[0])
-        if new_price >= current_price:
-            return False
-        return True
+        return False if len(new_price) == 0 or float(new_price[0]) >= current_price else True
 
     async def send_simple_message(self, data):
         return requests.post(
@@ -73,7 +63,7 @@ class BAPC:
     async def print_content(self):
         data = "The following items were found to be on sale on r/buildapcsales:\n"
         data = data + "----------------------------------------------------\n"
-        for (title, link) in self.submissionList.items():
+        for (title, link) in self.submission_list.items():
             data = data + "Item: %s \n" % title + "Link: %s \n" % link
             data = data + "----------------------------------------------------\n"
         return data
@@ -89,14 +79,14 @@ class BAPC:
                 continue
             if flair == "Cooler":
                 continue
-            for (partType, value) in self.parts.items():
+            for (part_type, value) in self.parts.items():
                 for part in value:
-                    if flair != partType:
+                    if flair != part_type:
                         continue
                     else:
                         title = submission.title
                         if await self.is_name_in_string(part, title):
-                            self.submissionList[title] = submission.url
+                            self.submission_list[title] = submission.url
 
     async def crawl(self):
         task = asyncio.create_task(self.crawl_new())
@@ -117,7 +107,7 @@ class BAPC:
                     else:
                         title = submission.title
                         if await self.is_name_in_string(part, title):
-                            self.submissionList[title] = submission.url
+                            self.submission_list[title] = submission.url
         await task
         data = await self.print_content()
         result = await self.send_simple_message(data)
