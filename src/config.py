@@ -15,8 +15,9 @@ class Config:
     def __init__(self):
         self.config = configparser.ConfigParser(allow_no_value=True)
         self.config.read(self.CONFIG_FILE_NAME)
-        # Run checks to see if info is available, prompt if not
+        # run checks to see if info is available, prompt if not
         self.config_check_reddit()
+        self.config_check_api()
 
     def config_check_reddit(self):
         if 'reddit' not in self.config:
